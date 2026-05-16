@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News & Updates | GTA 6 Reloaded</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">GTA6<span>RELOADED</span></a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="news.html" class="active">News</a>
+                <a href="characters.html">Characters</a>
+                <a href="locations.html">Locations</a>
+                <a href="livestream.html">Live</a>
+                <a href="guides.html">Guides</a>
+                <a href="socials.html">Socials</a>
+            </nav>
+            <div class="social-top">
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <div class="menu-toggle">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section style="padding-top: 150px;">
+            <h1 class="section-title fade-in">Latest News</h1>
+            
+            <div class="fade-in" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 50px;">
+                <button class="btn" style="padding: 10px 20px; font-size: 0.9rem;">All</button>
+                <button class="btn" style="padding: 10px 20px; font-size: 0.9rem; background: #222;">Trailers</button>
+                <button class="btn" style="padding: 10px 20px; font-size: 0.9rem; background: #222;">Leaks</button>
+                <button class="btn" style="padding: 10px 20px; font-size: 0.9rem; background: #222;">Official</button>
+            </div>
+
+            <div class="grid grid-3" id="blogGrid">
+                <!-- Articles from API will load here -->
+                 <div class="card fade-in">
+                    <div class="card-img">
+                        <img src="https://placehold.co/600x400/111/ff2a2a?text=TRAILER+1" alt="News 1">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category">Official</span>
+                        <h3 class="card-title">Everything in Trailer 1</h3>
+                        <p class="card-excerpt">A deep dive into the first official look at GTA 6...</p>
+                        <span style="color: #555; font-size: 0.8rem;">May 15, 2026</span>
+                    </div>
+                </div>
+                <!-- 5 more placeholders for now -->
+                <div class="card fade-in">
+                    <div class="card-img"><img src="https://placehold.co/600x400/111/ff2a2a?text=MAP" alt="News 2"></div>
+                    <div class="card-content">
+                        <span class="card-category">Leaks</span>
+                        <h3 class="card-title">New Map Details Leaked</h3>
+                        <p class="card-excerpt">Rumors of multiple cities surfacing again...</p>
+                        <span style="color: #555; font-size: 0.8rem;">May 14, 2026</span>
+                    </div>
+                </div>
+                <div class="card fade-in">
+                    <div class="card-img"><img src="https://placehold.co/600x400/111/ff2a2a?text=PS5+PRO" alt="News 3"></div>
+                    <div class="card-content">
+                        <span class="card-category">Gameplay</span>
+                        <h3 class="card-title">GTA 6 on PS5 Pro</h3>
+                        <p class="card-excerpt">What performance can we expect from next-gen hardware?</p>
+                        <span style="color: #555; font-size: 0.8rem;">May 12, 2026</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function fetchNews() {
+            const res = await fetch('/api/posts');
+            const posts = await res.json();
+            const grid = document.getElementById('blogGrid');
+            
+            if (posts.length > 0) {
+                // If we have actual posts from the admin, clear placeholders
+                grid.innerHTML = posts.map(post => `
+                    <div class="card fade-in visible">
+                        <div class="card-img">
+                            <img src="${post.image}" alt="${post.title}">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-category">${post.category}</span>
+                            <h3 class="card-title">${post.title}</h3>
+                            <p class="card-excerpt">${post.content.substring(0, 100)}...</p>
+                            <span style="color: #555; font-size: 0.8rem;">${post.date}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        fetchNews();
+    </script>
+    <script src="js/script.js"></script>
+</body>
+</html>
