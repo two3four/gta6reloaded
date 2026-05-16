@@ -3,98 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal | GTA6Reloaded</title>
+    <title>Secure Portal | GTA6Reloaded</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body { background-color: #050505; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .portal-box { width: 100%; max-width: 600px; background: #111; padding: 50px; border: 1px solid #222; box-shadow: 0 0 30px rgba(255,42,42,0.1); }
+        .portal-box { width: 100%; max-width: 500px; background: #111; padding: 50px; border: 1px solid #222; box-shadow: 0 0 30px rgba(255,42,42,0.1); }
         .form-group { margin-bottom: 25px; }
         label { display: block; margin-bottom: 10px; color: var(--primary-red); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 2px; }
         input, textarea, select { width: 100%; padding: 15px; background: #0a0a0a; border: 1px solid #333; color: white; font-family: var(--font-body); }
         input:focus { border-color: var(--primary-red); outline: none; }
         .portal-header { text-align: center; margin-bottom: 40px; }
-        #editor { display: none; }
+        #tokenBox, #editor { display: none; }
     </style>
 </head>
 <body>
-    <div class="portal-box" id="loginBox">
+    <!-- Step 1: Password Entry -->
+    <div class="portal-box" id="passwordBox">
         <div class="portal-header">
-            <h1 class="heading-font" style="font-size: 2.5rem;">Access Portal</h1>
-            <p style="color: #666;">Secure Entry for GTA6Reloaded Administrators</p>
+            <h1 class="heading-font" style="font-size: 2.5rem;">Admin Access</h1>
+            <p style="color: #666;">Enter your private access code</p>
         </div>
         <div class="form-group">
-            <label>GitHub Access Token</label>
-            <input type="password" id="ghToken" placeholder="Paste your ghp_... token">
+            <label>Access Code</label>
+            <input type="password" id="accessCode" placeholder="••••••••">
         </div>
-        <button class="btn" style="width: 100%;" onclick="enterPortal()">Enter Terminal</button>
-        <p style="text-align:center; font-size: 0.7rem; color: #444; margin-top: 20px;">Connection encrypted via GitHub API</p>
+        <button class="btn" style="width: 100%;" onclick="checkPassword()">Login</button>
     </div>
 
+    <!-- Step 2: GitHub Token (Hidden until first time) -->
+    <div class="portal-box" id="tokenBox">
+        <div class="portal-header">
+            <h1 class="heading-font">Link GitHub</h1>
+            <p style="color: #888;">Paste your GitHub Personal Access Token once to enable cloud publishing.</p>
+        </div>
+        <div class="form-group">
+            <label>GitHub Token</label>
+            <input type="password" id="ghToken" placeholder="ghp_...">
+        </div>
+        <button class="btn" style="width: 100%;" onclick="saveToken()">Save Connection</button>
+    </div>
+
+    <!-- Step 3: Article Editor -->
     <div class="portal-box" id="editor" style="max-width: 900px;">
         <div class="portal-header">
             <h1 class="heading-font">Publish Intelligence</h1>
-            <p style="color: var(--secondary-gold);">Connected to: two3four/gta6reloaded</p>
+            <p style="color: var(--secondary-gold);">Secure Session Active</p>
         </div>
-        
         <form id="postForm">
             <div class="form-group">
                 <label>Article Title</label>
                 <input type="text" id="title" required>
             </div>
             <div style="display: flex; gap: 20px;">
-                <div class="form-group" style="flex: 1;">
-                    <label>Category</label>
-                    <select id="category">
-                        <option value="Official">Official</option>
-                        <option value="Leaks">Leaks</option>
-                        <option value="Trailers">Trailers</option>
-                        <option value="Gameplay">Gameplay</option>
-                    </select>
-                </div>
-                <div class="form-group" style="flex: 2;">
-                    <label>Image URL</label>
-                    <input type="url" id="image_url" placeholder="https://..." required>
-                </div>
+                <div class="form-group" style="flex: 1;"><label>Category</label><select id="category"><option value="Official">Official</option><option value="Leaks">Leaks</option><option value="Trailers">Trailers</option><option value="Gameplay">Gameplay</option></select></div>
+                <div class="form-group" style="flex: 2;"><label>Image URL</label><input type="url" id="image_url" placeholder="https://..." required></div>
             </div>
-            <div class="form-group">
-                <label>Content (Body Text)</label>
-                <textarea id="content" rows="8" required></textarea>
-            </div>
+            <div class="form-group"><label>Content</label><textarea id="content" rows="8" required></textarea></div>
             <button type="submit" class="btn" id="pubBtn" style="width: 100%;">Commit & Push to Live Site</button>
-            <button class="btn" style="width: 100%; margin-top: 10px; background: #222;" onclick="location.reload()">Logout</button>
+            <button class="btn" style="width: 100%; margin-top: 10px; background: #222;" onclick="logout()">Logout</button>
         </form>
     </div>
 
     <script>
+        const PASSCODE = '00920092';
         const REPO = 'two3four/gta6reloaded';
         const FILE_PATH = 'data/posts.json';
 
-        function enterPortal() {
-            const token = document.getElementById('ghToken').value;
-            if (token.startsWith('ghp_')) {
-                localStorage.setItem('gh_token', token);
-                document.getElementById('loginBox').style.display = 'none';
-                document.getElementById('editor').style.display = 'block';
+        function checkPassword() {
+            const code = document.getElementById('accessCode').value;
+            if (code === PASSCODE) {
+                sessionStorage.setItem('authenticated', 'true');
+                showNextStep();
             } else {
-                alert('Invalid Token Format');
+                alert('Access Denied');
             }
         }
 
-        // Auto-login if token exists
-        if (localStorage.getItem('gh_token')) {
-            document.getElementById('loginBox').style.display = 'none';
-            document.getElementById('editor').style.display = 'block';
+        function showNextStep() {
+            document.getElementById('passwordBox').style.display = 'none';
+            if (!localStorage.getItem('gh_token')) {
+                document.getElementById('tokenBox').style.display = 'block';
+            } else {
+                document.getElementById('editor').style.display = 'block';
+            }
+        }
+
+        function saveToken() {
+            const token = document.getElementById('ghToken').value;
+            if (token.startsWith('ghp_')) {
+                localStorage.setItem('gh_token', token);
+                document.getElementById('tokenBox').style.display = 'none';
+                document.getElementById('editor').style.display = 'block';
+            } else {
+                alert('Invalid GitHub Token');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('authenticated');
+            location.reload();
+        }
+
+        // Auto-show editor if already authenticated in this session
+        if (sessionStorage.getItem('authenticated') === 'true') {
+            showNextStep();
         }
 
         document.getElementById('postForm').onsubmit = async (e) => {
             e.preventDefault();
             const token = localStorage.getItem('gh_token');
             const btn = document.getElementById('pubBtn');
-            btn.innerText = 'Transmitting Data...';
+            btn.innerText = 'Syncing...';
             btn.disabled = true;
 
             try {
-                // Get SHA
                 const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
                     headers: { 'Authorization': `token ${token}` }
                 });
@@ -111,7 +133,6 @@
                 };
                 posts.unshift(newPost);
 
-                // Push
                 const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
@@ -123,10 +144,10 @@
                 });
 
                 if (updateRes.ok) {
-                    alert('PUBLISHED! Vercel is now deploying your new article. Check your live news page in 60 seconds.');
+                    alert('SUCCESS! Your article is being pushed to the live site.');
                     document.getElementById('postForm').reset();
                 } else {
-                    alert('Transmission Failed. Check your token permissions.');
+                    alert('Error updating GitHub. Check token permissions.');
                 }
             } catch (err) {
                 alert('Connection Error: ' + err.message);
