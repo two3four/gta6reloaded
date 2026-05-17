@@ -72,38 +72,23 @@
         <section class="latest-drops container">
             <h2 class="section-title fade-in">Latest Drops</h2>
             <div class="grid grid-3">
-                <!-- Trailer 3 Card -->
-                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="card fade-in">
-                    <div class="card-img">
-                        <img src="img/everglades.jpg" alt="Trailer 3">
-                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.35);">
-                            <i class="fas fa-play-circle" style="font-size: 3.5rem; color: var(--primary-red);"></i>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <span class="card-category">Official Trailer</span>
-                        <h3 class="card-title">Trailer 3: Official Leonida Reveal</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Credit: Rockstar Games</p>
-                    </div>
-                </a>
-
                 <!-- Trailer 2 Card -->
-                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="card fade-in">
+                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="card fade-in video-card" data-video-id="VQRLujxTm3c" data-video-title="Grand Theft Auto VI Trailer 2">
                     <div class="card-img">
-                        <img src="img/leonida_keys.jpg" alt="Trailer 2">
+                        <img src="https://img.youtube.com/vi/VQRLujxTm3c/maxresdefault.jpg" alt="Trailer 2">
                         <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.35);">
                             <i class="fas fa-play-circle" style="font-size: 3.5rem; color: var(--primary-red);"></i>
                         </div>
                     </div>
                     <div class="card-content">
-                        <span class="card-category">Official Trailer</span>
-                        <h3 class="card-title">Trailer 2: Lucia & Jason Reveal</h3>
+                        <span class="card-category">Official Trailer 2</span>
+                        <h3 class="card-title">Trailer 2: Lucia & Jason</h3>
                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Credit: Rockstar Games</p>
                     </div>
                 </a>
 
                 <!-- Trailer 1 Card -->
-                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="card fade-in">
+                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="card fade-in video-card" data-video-id="QdBZY2fkU-0" data-video-title="Grand Theft Auto VI Trailer 1">
                     <div class="card-img">
                         <img src="https://img.youtube.com/vi/QdBZY2fkU-0/maxresdefault.jpg" alt="Trailer 1">
                         <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.35);">
@@ -111,8 +96,23 @@
                         </div>
                     </div>
                     <div class="card-content">
-                        <span class="card-category">Official Trailer</span>
+                        <span class="card-category">Official Trailer 1</span>
                         <h3 class="card-title">Trailer 1: Welcome to Vice City</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Credit: Rockstar Games</p>
+                    </div>
+                </a>
+
+                <!-- Trailer 3 / Gameplay Card -->
+                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="card fade-in video-card" data-video-id="VQRLujxTm3c" data-video-title="Grand Theft Auto VI Trailer 3: Leonida Reveal">
+                    <div class="card-img">
+                        <img src="img/everglades.jpg" alt="Trailer 3">
+                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.35);">
+                            <i class="fas fa-play-circle" style="font-size: 3.5rem; color: var(--primary-red);"></i>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category">Official Trailer 3</span>
+                        <h3 class="card-title">Trailer 3: Official Leonida Reveal</h3>
                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Credit: Rockstar Games</p>
                     </div>
                 </a>
@@ -227,6 +227,22 @@
             <p class="disclaimer">GTA6Reloaded is a fan site and is not affiliated with Rockstar Games or Take-Two Interactive. All trademarks belong to their respective owners.</p>
         </div>
     </footer>
+    <!-- Video Lightbox Modal -->
+    <div id="videoModal" class="video-modal">
+        <div class="video-modal-content">
+            <span class="video-modal-close">&times;</span>
+            <div class="video-container">
+                <iframe id="modalIframe" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <div class="video-modal-footer">
+                <h3 id="modalTitle" class="heading-font" style="font-size: 1.4rem; color: #fff; margin-bottom: 5px;"></h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Credit & Copyright: <strong>Rockstar Games</strong></p>
+                <a href="https://www.youtube.com/@RockstarGames" target="_blank" class="video-modal-btn">
+                    <i class="fab fa-youtube"></i> Visit Rockstar's YouTube Channel
+                </a>
+            </div>
+        </div>
+    </div>
 
     <script src="js/script.js"></script>
     <!-- Google Analytics Placeholder -->

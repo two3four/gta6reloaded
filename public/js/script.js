@@ -82,5 +82,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-    });
+    // Video Lightbox Modal Popup
+    const videoModal = document.getElementById('videoModal');
+    const modalIframe = document.getElementById('modalIframe');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalClose = document.querySelector('.video-modal-close');
+    const videoCards = document.querySelectorAll('.video-card');
+
+    if (videoModal && modalIframe && modalClose) {
+        videoCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // If user clicks with meta key or right click, allow default behavior (opening in new tab)
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) {
+                    return;
+                }
+                
+                e.preventDefault();
+                const videoId = this.getAttribute('data-video-id');
+                const videoTitle = this.getAttribute('data-video-title');
+                
+                if (videoId) {
+                    modalIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                    if (modalTitle) modalTitle.innerText = videoTitle || 'Grand Theft Auto VI Video';
+                    videoModal.classList.add('show');
+                    document.body.style.overflow = 'hidden'; // Disable page scrolling
+                }
+            });
+        });
+
+        // Close Modal
+        function closeModal() {
+            videoModal.classList.remove('show');
+            modalIframe.src = '';
+            document.body.style.overflow = ''; // Enable page scrolling
+        }
+
+        modalClose.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside content box
+        videoModal.addEventListener('click', function(e) {
+            if (e.target === videoModal) {
+                closeModal();
+            }
+        });
+
+        // Close on Escape key press
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && videoModal.classList.contains('show')) {
+                closeModal();
+            }
+        });
+    }
 });
