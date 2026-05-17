@@ -82,6 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
+    });
+
     // Video Lightbox Modal Popup
     const videoModal = document.getElementById('videoModal');
     const modalIframe = document.getElementById('modalIframe');
