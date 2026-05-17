@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Database helper
-const DB_PATH = path.join(__dirname, 'data', 'posts.json');
+const DB_PATH = path.join(__dirname, 'public', 'data', 'posts.json');
 
 function readPosts() {
     if (!fs.existsSync(DB_PATH)) {

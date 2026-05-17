@@ -81,25 +81,28 @@
 
     <script>
         async function fetchNews() {
-            const res = await fetch('/api/posts');
-            const posts = await res.json();
-            const grid = document.getElementById('blogGrid');
-            
-            if (posts.length > 0) {
-                // If we have actual posts from the admin, clear placeholders
-                grid.innerHTML = posts.map(post => `
-                    <div class="card fade-in visible">
-                        <div class="card-img">
-                            <img src="${post.image}" alt="${post.title}">
+            try {
+                const res = await fetch('data/posts.json');
+                const posts = await res.json();
+                const grid = document.getElementById('blogGrid');
+                
+                if (posts && posts.length > 0) {
+                    grid.innerHTML = posts.map(post => `
+                        <div class="card fade-in visible">
+                            <div class="card-img">
+                                <img src="${post.image}" alt="${post.title}">
+                            </div>
+                            <div class="card-content">
+                                <span class="card-category">${post.category}</span>
+                                <h3 class="card-title">${post.title}</h3>
+                                <p class="card-excerpt">${post.content.substring(0, 100)}...</p>
+                                <span style="color: #555; font-size: 0.8rem;">${post.date}</span>
+                            </div>
                         </div>
-                        <div class="card-content">
-                            <span class="card-category">${post.category}</span>
-                            <h3 class="card-title">${post.title}</h3>
-                            <p class="card-excerpt">${post.content.substring(0, 100)}...</p>
-                            <span style="color: #555; font-size: 0.8rem;">${post.date}</span>
-                        </div>
-                    </div>
-                `).join('');
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Error fetching articles:', err);
             }
         }
         fetchNews();
