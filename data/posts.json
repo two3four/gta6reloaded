@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": 1716120000000,
+    "title": "Everything in Trailer 1",
+    "category": "Official",
+    "image": "https://placehold.co/600x400/111/ff2a2a?text=TRAILER+1",
+    "content": "A deep dive into the first official look at GTA 6. This groundbreaking trailer introduced us to Lucia, Jason, and the stunning neon-drenched landscapes of modern-day Vice City.",
+    "date": "5/15/2026"
+  },
+  {
+    "id": 1716033600000,
+    "title": "New Map Details Leaked",
+    "category": "Leaks",
+    "image": "https://placehold.co/600x400/111/ff2a2a?text=MAP",
+    "content": "Rumors of multiple cities surfacing again, suggesting that Leonida will feature sprawling rural areas, swamps, and neighboring islands alongside Vice City itself.",
+    "date": "5/14/2026"
+  },
+  {
+    "id": 1715860800000,
+    "title": "GTA 6 on PS5 Pro",
+    "category": "Gameplay",
+    "image": "https://placehold.co/600x400/111/ff2a2a?text=PS5+PRO",
+    "content": "What performance can we expect from next-gen hardware? Technical experts speculate that the enhanced GPU of the PS5 Pro will deliver native 4K resolution at a locked 60 FPS.",
+    "date": "5/12/2026"
+  }
+]
