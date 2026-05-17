@@ -6,14 +6,28 @@
     <title>Secure Portal | GTA6Reloaded</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        body { background-color: #050505; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .portal-box { width: 100%; max-width: 500px; background: #111; padding: 50px; border: 1px solid #222; box-shadow: 0 0 30px rgba(255,42,42,0.1); }
+        body { background-color: #050505; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .portal-box { width: 100%; max-width: 600px; background: #0f0f0f; padding: 40px; border: 1px solid var(--card-border); box-shadow: 0 15px 50px rgba(255,42,42,0.15); transition: var(--transition-fast); }
         .form-group { margin-bottom: 25px; }
-        label { display: block; margin-bottom: 10px; color: var(--primary-red); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 2px; }
-        input, textarea, select { width: 100%; padding: 15px; background: #0a0a0a; border: 1px solid #333; color: white; font-family: var(--font-body); }
-        input:focus { border-color: var(--primary-red); outline: none; }
-        .portal-header { text-align: center; margin-bottom: 40px; }
-        #tokenBox, #editor { display: none; }
+        label { display: block; margin-bottom: 10px; color: var(--primary-red); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.9rem; }
+        input, textarea, select { width: 100%; padding: 15px; background: #070707; border: 1px solid #222; color: white; font-family: var(--font-body); transition: var(--transition-fast); }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary-red); outline: none; background: #0a0a0a; }
+        .portal-header { text-align: center; margin-bottom: 35px; }
+        #tokenBox, #editorContainer { display: none; }
+        
+        /* Premium Tab styling */
+        .tabs { display: flex; border-bottom: 2px solid #222; margin-bottom: 30px; gap: 10px; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-family: var(--font-heading); font-weight: 700; text-transform: uppercase; padding: 12px 25px; cursor: pointer; transition: var(--transition-fast); font-size: 0.9rem; letter-spacing: 1px; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .tab-btn.active { color: var(--primary-red); border-bottom-color: var(--primary-red); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Auto uploader styling */
+        .upload-wrapper { display: flex; gap: 15px; align-items: center; margin-top: 8px; }
+        .file-upload-btn { position: relative; overflow: hidden; display: inline-block; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px 20px; font-family: var(--font-heading); text-transform: uppercase; font-size: 0.8rem; cursor: pointer; transition: var(--transition-fast); text-align: center; min-width: 150px; }
+        .file-upload-btn:hover { background: var(--primary-red); border-color: var(--primary-red); }
+        .file-upload-btn input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; width: 100%; }
+        .upload-status { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
     </style>
 </head>
 <body>
@@ -21,7 +35,7 @@
     <div class="portal-box" id="passwordBox">
         <div class="portal-header">
             <h1 class="heading-font" style="font-size: 2.5rem;">Admin Access</h1>
-            <p style="color: #666;">Enter your private access code</p>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Enter your private secure session key</p>
         </div>
         <div class="form-group">
             <label>Access Code</label>
@@ -30,44 +44,111 @@
         <button class="btn" style="width: 100%;" onclick="checkPassword()">Login</button>
     </div>
 
-    <!-- Step 2: GitHub Token (Hidden until first time) -->
+    <!-- Step 2: GitHub Token Connection -->
     <div class="portal-box" id="tokenBox">
         <div class="portal-header">
             <h1 class="heading-font">Link GitHub</h1>
-            <p style="color: #888;">Paste your GitHub Personal Access Token once to enable cloud publishing.</p>
+            <p style="color: var(--text-muted);">Paste your GitHub Personal Access Token to enable cloud updates.</p>
         </div>
         <div class="form-group">
-            <label>GitHub Token</label>
+            <label>GitHub Personal Token</label>
             <input type="password" id="ghToken" placeholder="ghp_...">
         </div>
         <button class="btn" style="width: 100%;" onclick="saveToken()">Save Connection</button>
     </div>
 
-    <!-- Step 3: Article Editor -->
-    <div class="portal-box" id="editor" style="max-width: 900px;">
-        <div class="portal-header">
-            <h1 class="heading-font">Publish Intelligence</h1>
-            <p style="color: var(--secondary-gold);">Secure Session Active</p>
+    <!-- Step 3: Dual Editor Container -->
+    <div class="portal-box" id="editorContainer" style="max-width: 800px; width: 100%;">
+        <div class="portal-header" style="margin-bottom: 25px;">
+            <h1 class="heading-font" style="font-size: 2.2rem;">GTA6RELOADED CMS</h1>
+            <p style="color: var(--secondary-gold); font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;">Cloud Database Sync Active</p>
         </div>
-        <form id="postForm">
-            <div class="form-group">
-                <label>Article Title</label>
-                <input type="text" id="title" required>
-            </div>
-            <div style="display: flex; gap: 20px;">
-                <div class="form-group" style="flex: 1;"><label>Category</label><select id="category"><option value="Official">Official</option><option value="Leaks">Leaks</option><option value="Trailers">Trailers</option><option value="Gameplay">Gameplay</option></select></div>
-                <div class="form-group" style="flex: 2;"><label>Image URL</label><input type="url" id="image_url" placeholder="https://..." required></div>
-            </div>
-            <div class="form-group"><label>Content</label><textarea id="content" rows="8" required></textarea></div>
-            <button type="submit" class="btn" id="pubBtn" style="width: 100%;">Commit & Push to Live Site</button>
-            <button class="btn" style="width: 100%; margin-top: 10px; background: #222;" onclick="logout()">Logout</button>
-        </form>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('articleTab', this)">Publish News</button>
+            <button class="tab-btn" onclick="switchTab('characterTab', this)">Add Character</button>
+        </div>
+
+        <!-- TAB 1: ARTICLES EDITOR -->
+        <div id="articleTab" class="tab-content active">
+            <form id="postForm">
+                <div class="form-group">
+                    <label>Article Title</label>
+                    <input type="text" id="title" required placeholder="e.g. Rockstar confirms new screenshot drops">
+                </div>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="Official">Official</option>
+                            <option value="Leaks">Leaks</option>
+                            <option value="Trailers">Trailers</option>
+                            <option value="Gameplay">Gameplay</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 250px;">
+                        <label>Image Link / Host</label>
+                        <input type="url" id="image_url" placeholder="https://..." required>
+                        <div class="upload-wrapper">
+                            <div class="file-upload-btn">
+                                <i class="fas fa-cloud-upload-alt"></i> Upload Image
+                                <input type="file" accept="image/*" onchange="handleImageUpload(this, 'image_url', 'artUploadStatus')">
+                            </div>
+                            <span id="artUploadStatus" class="upload-status">No file uploaded</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Article Content</label>
+                    <textarea id="content" rows="7" required placeholder="Write your news article in details..."></textarea>
+                </div>
+                <button type="submit" class="btn" id="pubBtn" style="width: 100%;">Commit & Publish News</button>
+            </form>
+        </div>
+
+        <!-- TAB 2: CHARACTERS EDITOR -->
+        <div id="characterTab" class="tab-content">
+            <form id="charForm">
+                <div class="form-group">
+                    <label>Character Full Name</label>
+                    <input type="text" id="charName" required placeholder="e.g. Cal Hampton">
+                </div>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div class="form-group" style="flex: 1; min-width: 200px;">
+                        <label>Role / Biography Class</label>
+                        <input type="text" id="charRole" required placeholder="e.g. Key Contact, Cartel Enforcer">
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 250px;">
+                        <label>Portrait Image Link</label>
+                        <input type="url" id="charImage" placeholder="https://..." required>
+                        <div class="upload-wrapper">
+                            <div class="file-upload-btn">
+                                <i class="fas fa-cloud-upload-alt"></i> Upload Image
+                                <input type="file" accept="image/*" onchange="handleImageUpload(this, 'charImage', 'charUploadStatus')">
+                            </div>
+                            <span id="charUploadStatus" class="upload-status">No file uploaded</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Character Description</label>
+                    <textarea id="charDesc" rows="5" required placeholder="Write a short biography describing their background and role in GTA 6..."></textarea>
+                </div>
+                <button type="submit" class="btn" id="charPubBtn" style="width: 100%;">Commit & Add Character</button>
+            </form>
+        </div>
+
+        <button class="btn" style="width: 100%; margin-top: 25px; background: #1a1a1a; border-color: #222;" onclick="logout()">Logout Secure Session</button>
     </div>
+
+    <!-- FontAwesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
     <script>
         const PASSCODE = '00920092';
         const REPO = 'two3four/gta6reloaded';
-        const FILE_PATH = 'data/posts.json';
+        const POSTS_FILE = 'data/posts.json';
+        const CHARS_FILE = 'data/characters.json';
 
         function checkPassword() {
             const code = document.getElementById('accessCode').value;
@@ -75,7 +156,7 @@
                 sessionStorage.setItem('authenticated', 'true');
                 showNextStep();
             } else {
-                alert('Access Denied');
+                alert('Access Denied: Invalid Security Session Key');
             }
         }
 
@@ -84,19 +165,32 @@
             if (!localStorage.getItem('gh_token')) {
                 document.getElementById('tokenBox').style.display = 'block';
             } else {
-                document.getElementById('editor').style.display = 'block';
+                document.getElementById('editorContainer').style.display = 'block';
             }
         }
 
         function saveToken() {
-            const token = document.getElementById('ghToken').value;
-            if (token.startsWith('ghp_')) {
+            const token = document.getElementById('ghToken').value.trim();
+            if (token.startsWith('ghp_') || token.startsWith('github_pat_')) {
                 localStorage.setItem('gh_token', token);
                 document.getElementById('tokenBox').style.display = 'none';
-                document.getElementById('editor').style.display = 'block';
+                document.getElementById('editorContainer').style.display = 'block';
             } else {
-                alert('Invalid GitHub Token');
+                alert('Invalid GitHub Token Format. It should start with ghp_');
             }
+        }
+
+        // Auto-authenticate if page reloads
+        if (sessionStorage.getItem('authenticated') === 'true') {
+            showNextStep();
+        }
+
+        // Tab Switcher logic
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
         }
 
         function logout() {
@@ -104,20 +198,75 @@
             location.reload();
         }
 
-        // Auto-show editor if already authenticated in this session
-        if (sessionStorage.getItem('authenticated') === 'true') {
-            showNextStep();
+        // --- AUTOMATED GITHUB IMAGE UPLOADER ---
+        async function handleImageUpload(inputEl, targetInputId, statusElId) {
+            const statusEl = document.getElementById(statusElId);
+            const token = localStorage.getItem('gh_token');
+            
+            if (!token) {
+                alert('Please link your GitHub connection first!');
+                inputEl.value = '';
+                return;
+            }
+
+            if (!inputEl.files || inputEl.files.length === 0) return;
+            const file = inputEl.files[0];
+            statusEl.innerText = 'Reading file...';
+            statusEl.style.color = 'var(--secondary-gold)';
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64Data = reader.result.split(',')[1];
+                const fileExt = file.name.split('.').pop();
+                const filename = `img_upload_${Date.now()}.${fileExt}`;
+                const gitPath = `public/img/uploads/${filename}`;
+                
+                statusEl.innerText = 'Pushed image to cloud...';
+
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${gitPath}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `Admin Image Upload: ${filename}`,
+                            content: base64Data
+                        })
+                    });
+
+                    if (res.ok) {
+                        const fileUrl = `img/uploads/${filename}`;
+                        document.getElementById(targetInputId).value = fileUrl;
+                        statusEl.innerText = 'Cloud Upload Successful!';
+                        statusEl.style.color = '#00ff88';
+                    } else {
+                        const err = await res.json();
+                        statusEl.innerText = 'Upload failed!';
+                        statusEl.style.color = 'var(--primary-red)';
+                        alert('GitHub Cloud Upload Error: ' + err.message);
+                    }
+                } catch (err) {
+                    statusEl.innerText = 'Connection Error!';
+                    statusEl.style.color = 'var(--primary-red)';
+                    alert('Upload Connection Failed: ' + err.message);
+                }
+            };
         }
 
+        // --- SUBMIT 1: PUBLISH ARTICLE ---
         document.getElementById('postForm').onsubmit = async (e) => {
             e.preventDefault();
             const token = localStorage.getItem('gh_token');
             const btn = document.getElementById('pubBtn');
-            btn.innerText = 'Syncing...';
+            btn.innerText = 'Pushing Article Live...';
             btn.disabled = true;
 
             try {
-                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+                // Fetch posts database
+                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${POSTS_FILE}`, {
                     headers: { 'Authorization': `token ${token}` }
                 });
                 const fileData = await res.json();
@@ -133,26 +282,91 @@
                 };
                 posts.unshift(newPost);
 
-                const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+                // Commit back to GitHub
+                const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${POSTS_FILE}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: `Admin Update: ${newPost.title}`,
-                        content: btoa(JSON.stringify(posts, null, 2)),
+                        message: `CMS Publish Article: ${newPost.title}`,
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2)))),
                         sha: fileData.sha
                     })
                 });
 
                 if (updateRes.ok) {
-                    alert('SUCCESS! Your article is being pushed to the live site.');
+                    alert('SUCCESS! The news article is live and Vercel is redeploying.');
                     document.getElementById('postForm').reset();
+                    document.getElementById('artUploadStatus').innerText = 'No file uploaded';
+                    document.getElementById('artUploadStatus').style.color = 'var(--text-muted)';
                 } else {
-                    alert('Error updating GitHub. Check token permissions.');
+                    const err = await updateRes.json();
+                    alert('Failed to update: ' + err.message);
                 }
             } catch (err) {
                 alert('Connection Error: ' + err.message);
             }
-            btn.innerText = 'Commit & Push to Live Site';
+            btn.innerText = 'Commit & Publish News';
+            btn.disabled = false;
+        };
+
+        // --- SUBMIT 2: ADD CHARACTER ---
+        document.getElementById('charForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('gh_token');
+            const btn = document.getElementById('charPubBtn');
+            btn.innerText = 'Adding Character...';
+            btn.disabled = true;
+
+            try {
+                // Fetch characters database
+                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${CHARS_FILE}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                
+                let characters = [];
+                let sha = null;
+
+                if (res.ok) {
+                    const fileData = await res.json();
+                    characters = JSON.parse(atob(fileData.content));
+                    sha = fileData.sha;
+                }
+
+                const newChar = {
+                    id: Date.now(),
+                    name: document.getElementById('charName').value,
+                    role: document.getElementById('charRole').value,
+                    image: document.getElementById('charImage').value,
+                    description: document.getElementById('charDesc').value
+                };
+                characters.unshift(newChar);
+
+                // Commit back to GitHub
+                const bodyPayload = {
+                    message: `CMS Add Character: ${newChar.name}`,
+                    content: btoa(unescape(encodeURIComponent(JSON.stringify(characters, null, 2))))
+                };
+                if (sha) bodyPayload.sha = sha;
+
+                const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${CHARS_FILE}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bodyPayload)
+                });
+
+                if (updateRes.ok) {
+                    alert('SUCCESS! The new character has been added, Vercel is redeploying.');
+                    document.getElementById('charForm').reset();
+                    document.getElementById('charUploadStatus').innerText = 'No file uploaded';
+                    document.getElementById('charUploadStatus').style.color = 'var(--text-muted)';
+                } else {
+                    const err = await updateRes.json();
+                    alert('Failed to update character list: ' + err.message);
+                }
+            } catch (err) {
+                alert('Connection Error: ' + err.message);
+            }
+            btn.innerText = 'Commit & Add Character';
             btn.disabled = false;
         };
     </script>

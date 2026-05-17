@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "name": "Lucia Caminos",
+    "role": "Protagonist",
+    "image": "img/lucia_portrait.png",
+    "description": "One of the two main protagonists. Lucia is fierce, street-smart, and deeply protective of her loved ones. After serving a prison sentence, she returns to the neon-drenched streets of Leonida determined to secure a better life by any means necessary."
+  },
+  {
+    "id": 2,
+    "name": "Jason Duval",
+    "role": "Protagonist",
+    "image": "img/jason_portrait.png",
+    "description": "The male co-protagonist of GTA 6. Partnered with Lucia, Jason brings heavy muscle, tactical gunplay, and precision driving to their crew. Though he seeks a quick road to wealth, he constantly finds himself pulled deeper into the dangerous cartel networks of Leonida."
+  },
+  {
+    "id": 3,
+    "name": "Dre'Quan Priest",
+    "role": "Street Connection",
+    "image": "https://static.wikia.nocookie.net/gtawiki/images/e/e4/Dre%27QuanPriest-GTAVI.png",
+    "description": "An aspiring music producer and partner at Only Raw Records. Dre'Quan represents the new wave of the Vice City scene, acting as a critical gateway to complex smuggling routes and street hierarchies."
+  },
+  {
+    "id": 4,
+    "name": "Raul Bautista",
+    "role": "Enforcer",
+    "image": "img/raul_bautista.jpg",
+    "description": "A seasoned and veteran bank robber known for taking massive risks for legendary scores. Raul represents the old-school muscle of Vice City's cartel scene, commanding absolute respect through ruthless efficiency."
+  },
+  {
+    "id": 5,
+    "name": "Cal Hampton",
+    "role": "Conspiracy Theorist",
+    "image": "img/cal_hampton.png",
+    "description": "A rampant conspiracy theorist and longtime friend of Jason. Operating out of the shadows of the city's elite, Cal provides critical intelligence and shakedown opportunities to the team."
+  },
+  {
+    "id": 6,
+    "name": "Real Dimez",
+    "role": "Viral Influencers",
+    "image": "https://placehold.co/600x400/111/ff2a2a?text=REAL+DIMEZ",
+    "description": "The viral Florida rap duo taking Leonida by storm. Famous for their spicy tracks and social media antics, Bae-Luxe and Roxy leverage their massive digital following to aid the crew's operations."
+  },
+  {
+    "id": 7,
+    "name": "Boobie Ike",
+    "role": "Racer & Mogul",
+    "image": "img/vice_city.jpg",
+    "description": "A legendary racer on the Vice City street circuit and a prominent nightclub mogul. Boobie Ike knows every secret shortcut and alleyway in the city, controlling Leonida's high-speed night life."
+  },
+  {
+    "id": 8,
+    "name": "Brian Heder",
+    "role": "Keys Smuggler",
+    "image": "img/leonida_keys.jpg",
+    "description": "A veteran smuggler operating from the Florida Keys boatyards. Brian manages waterfront logistics and shakedowns, offering Jason a place to hide in exchange for muscle."
+  },
+  {
+    "id": 9,
+    "name": "Stefanie",
+    "role": "Prison Counselor",
+    "image": "https://placehold.co/600x400/111/ff2a2a?text=STEFANIE",
+    "description": "A dedicated prison counselor and correctional social worker. Stefanie oversees Lucia's parole transition, representing the fragile barrier between freedom and returning to the criminal underworld."
+  }
+]

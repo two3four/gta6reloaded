@@ -2,126 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Admin Dashboard | GTA6Reloaded</title>
-    <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        body { background-color: #050505; }
-        .admin-container { max-width: 1000px; margin: 100px auto; padding: 40px; background: #111; border: 1px solid #222; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 10px; color: var(--primary-red); font-family: var(--font-heading); text-transform: uppercase; }
-        input, textarea, select { width: 100%; padding: 15px; background: #0a0a0a; border: 1px solid #333; color: white; font-family: var(--font-body); }
-        .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--primary-red); padding-bottom: 10px; }
-        #tokenSection { background: #1a1a1a; padding: 20px; margin-bottom: 30px; border: 1px dashed var(--secondary-gold); }
-    </style>
+    <meta http-equiv="refresh" content="0; url=../portal.html">
+    <title>Redirecting to Master Portal...</title>
+    <script>
+        window.location.href = "../portal.html";
+    </script>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="editor-header">
-            <h1 class="heading-font">GitHub-Powered CMS</h1>
-            <a href="../index.html" style="color: var(--text-muted);">View Site</a>
-        </div>
-
-        <!-- Token Setup -->
-        <div id="tokenSection">
-            <label style="color: var(--secondary-gold);">Step 1: Link your GitHub</label>
-            <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Enter your GitHub Personal Access Token to enable live publishing.</p>
-            <input type="password" id="githubToken" placeholder="paste your ghp_token here">
-            <button class="btn" style="margin-top: 10px; padding: 10px 20px;" onclick="saveToken()">Save Connection</button>
-        </div>
-        
-        <form id="postForm">
-            <div class="form-group">
-                <label>Article Title</label>
-                <input type="text" id="title" required>
-            </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select id="category">
-                    <option value="Official">Official</option>
-                    <option value="Leaks">Leaks</option>
-                    <option value="Trailers">Trailers</option>
-                    <option value="Gameplay">Gameplay</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Featured Image URL</label>
-                <input type="url" id="image_url" placeholder="https://..." required>
-            </div>
-            <div class="form-group">
-                <label>Content</label>
-                <textarea id="content" rows="10" required></textarea>
-            </div>
-            <button type="submit" class="btn" id="publishBtn">Commit to GitHub & Deploy</button>
-        </form>
-    </div>
-
-    <script>
-        const REPO = 'two3four/gta6reloaded';
-        const FILE_PATH = 'data/posts.json';
-
-        function saveToken() {
-            const token = document.getElementById('githubToken').value;
-            localStorage.setItem('github_token', token);
-            alert('Token saved locally!');
-        }
-
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem('github_token');
-            if (!token) return alert('Please enter your GitHub token first!');
-
-            const btn = document.getElementById('publishBtn');
-            btn.innerText = 'Syncing with GitHub...';
-            btn.disabled = true;
-
-            try {
-                // 1. Get current file data and its SHA (required by GitHub API)
-                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                const fileData = await res.json();
-                const posts = JSON.parse(atob(fileData.content));
-
-                // 2. Add new post
-                const newPost = {
-                    id: Date.now(),
-                    title: document.getElementById('title').value,
-                    category: document.getElementById('category').value,
-                    image: document.getElementById('image_url').value,
-                    content: document.getElementById('content').value,
-                    date: new Date().toLocaleDateString()
-                };
-                posts.unshift(newPost);
-
-                // 3. Push updated file back to GitHub
-                const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: `Publish: ${newPost.title}`,
-                        content: btoa(JSON.stringify(posts, null, 2)),
-                        sha: fileData.sha
-                    })
-                });
-
-                if (updateRes.ok) {
-                    alert('Success! GitHub is updating. Vercel will re-deploy your site in about 1 minute.');
-                    form.reset();
-                } else {
-                    const err = await updateRes.json();
-                    alert('Error: ' + err.message);
-                }
-            } catch (err) {
-                alert('Connection failed: ' + err.message);
-            }
-
-            btn.innerText = 'Commit to GitHub & Deploy';
-            btn.disabled = false;
-        };
-    </script>
+    <p>Redirecting to <a href="../portal.html">GTA 6 Master Admin Portal</a>...</p>
 </body>
 </html>

@@ -33,7 +33,7 @@
     </header>
 
     <main class="container">
-        <section style="padding-top: 150px;">
+        <section id="charactersContainer" style="padding-top: 150px;">
             <h1 class="section-title fade-in">Characters</h1>
             
             <!-- Lucia Caminos -->
@@ -153,6 +153,38 @@
         </div>
     </footer>
 
+    <script>
+        async function fetchCharacters() {
+            try {
+                const res = await fetch('data/characters.json');
+                if (!res.ok) return;
+                const characters = await res.json();
+                const container = document.getElementById('charactersContainer');
+                
+                if (characters && characters.length > 0) {
+                    let html = `<h1 class="section-title fade-in visible">Characters</h1>`;
+                    characters.forEach(char => {
+                        html += `
+                            <div class="character-section fade-in visible">
+                                <div class="char-img">
+                                    <img src="${char.image}" alt="${char.name}">
+                                    <div class="char-name-overlay">${char.name.toUpperCase()}</div>
+                                </div>
+                                <div class="char-info">
+                                    <span class="role-badge">${char.role}</span>
+                                    <p>${char.description}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                }
+            } catch (err) {
+                console.log("Dynamic loading bypassed: using pre-rendered HTML.", err);
+            }
+        }
+        fetchCharacters();
+    </script>
     <script src="js/script.js"></script>
 </body>
 </html>
