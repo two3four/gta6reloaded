@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <style>
         body { background-color: #050505; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .portal-box { width: 100%; max-width: 600px; background: #0f0f0f; padding: 40px; border: 1px solid var(--card-border); box-shadow: 0 15px 50px rgba(255,42,42,0.15); transition: var(--transition-fast); }
+        .portal-box { width: 100%; max-width: 650px; background: #0f0f0f; padding: 40px; border: 1px solid var(--card-border); box-shadow: 0 15px 50px rgba(255,42,42,0.15); transition: var(--transition-fast); }
         .form-group { margin-bottom: 25px; }
         label { display: block; margin-bottom: 10px; color: var(--primary-red); font-family: var(--font-heading); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.9rem; }
         input, textarea, select { width: 100%; padding: 15px; background: #070707; border: 1px solid #222; color: white; font-family: var(--font-body); transition: var(--transition-fast); }
@@ -28,6 +28,11 @@
         .file-upload-btn:hover { background: var(--primary-red); border-color: var(--primary-red); }
         .file-upload-btn input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; width: 100%; }
         .upload-status { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
+
+        /* Button Grid */
+        .btn-group { display: flex; gap: 15px; margin-top: 15px; }
+        .btn-delete { background: #3a1111; border-color: #551a1a; color: #ff5555; }
+        .btn-delete:hover { background: #ff2a2a; border-color: #ff2a2a; color: #fff; }
     </style>
 </head>
 <body>
@@ -71,6 +76,13 @@
 
         <!-- TAB 1: ARTICLES EDITOR -->
         <div id="articleTab" class="tab-content active">
+            <div class="form-group" style="background: #111; padding: 20px; border: 1px dashed #333; margin-bottom: 30px;">
+                <label style="color: var(--secondary-gold);">Select Action</label>
+                <select id="articleSelect" onchange="loadArticleToForm()">
+                    <option value="new">-- Create New Article --</option>
+                </select>
+            </div>
+            
             <form id="postForm">
                 <div class="form-group">
                     <label>Article Title</label>
@@ -102,12 +114,22 @@
                     <label>Article Content</label>
                     <textarea id="content" rows="7" required placeholder="Write your news article in details..."></textarea>
                 </div>
-                <button type="submit" class="btn" id="pubBtn" style="width: 100%;">Commit & Publish News</button>
+                <div class="btn-group">
+                    <button type="submit" class="btn" id="pubBtn" style="flex: 2;">Commit & Publish News</button>
+                    <button type="button" class="btn btn-delete" id="deleteArtBtn" style="display: none; flex: 1;" onclick="deleteArticle()">Delete Article</button>
+                </div>
             </form>
         </div>
 
         <!-- TAB 2: CHARACTERS EDITOR -->
         <div id="characterTab" class="tab-content">
+            <div class="form-group" style="background: #111; padding: 20px; border: 1px dashed #333; margin-bottom: 30px;">
+                <label style="color: var(--secondary-gold);">Select Action</label>
+                <select id="charSelect" onchange="loadCharacterToForm()">
+                    <option value="new">-- Create New Character --</option>
+                </select>
+            </div>
+
             <form id="charForm">
                 <div class="form-group">
                     <label>Character Full Name</label>
@@ -134,7 +156,10 @@
                     <label>Character Description</label>
                     <textarea id="charDesc" rows="5" required placeholder="Write a short biography describing their background and role in GTA 6..."></textarea>
                 </div>
-                <button type="submit" class="btn" id="charPubBtn" style="width: 100%;">Commit & Add Character</button>
+                <div class="btn-group">
+                    <button type="submit" class="btn" id="charPubBtn" style="flex: 2;">Commit & Add Character</button>
+                    <button type="button" class="btn btn-delete" id="deleteCharBtn" style="display: none; flex: 1;" onclick="deleteCharacter()">Delete Character</button>
+                </div>
             </form>
         </div>
 
@@ -151,6 +176,12 @@
         const CHARS_FILE = 'data/characters.json';
         const DEFAULT_TOKEN = 'ghp_oXtVPtZmFbuAWP' + 'O391OKeC5P4e9PkZ1WbgjX';
 
+        // In-memory Database cache & SHAs
+        let inMemoryPosts = [];
+        let postsSha = null;
+        let inMemoryCharacters = [];
+        let charsSha = null;
+
         function checkPassword() {
             const code = document.getElementById('accessCode').value;
             if (code === PASSCODE) {
@@ -161,7 +192,7 @@
             }
         }
 
-        function showNextStep() {
+        async function showNextStep() {
             document.getElementById('passwordBox').style.display = 'none';
             
             // Pre-seed default token forever
@@ -173,6 +204,7 @@
                 document.getElementById('tokenBox').style.display = 'block';
             } else {
                 document.getElementById('editorContainer').style.display = 'block';
+                await loadExistingDatabase();
             }
         }
 
@@ -182,6 +214,7 @@
                 localStorage.setItem('gh_token', token);
                 document.getElementById('tokenBox').style.display = 'none';
                 document.getElementById('editorContainer').style.display = 'block';
+                loadExistingDatabase();
             } else {
                 alert('Invalid GitHub Token Format. It should start with ghp_');
             }
@@ -203,6 +236,119 @@
         function logout() {
             sessionStorage.removeItem('authenticated');
             location.reload();
+        }
+
+        // --- LOAD DATABASES FROM GITHUB ONCE ---
+        async function loadExistingDatabase() {
+            const token = localStorage.getItem('gh_token');
+            
+            // 1. Load Articles
+            try {
+                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${POSTS_FILE}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    inMemoryPosts = JSON.parse(atob(data.content));
+                    postsSha = data.sha;
+                    populateArticlesDropdown();
+                }
+            } catch (err) {
+                console.error('Error caching posts database:', err);
+            }
+
+            // 2. Load Characters
+            try {
+                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${CHARS_FILE}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    inMemoryCharacters = JSON.parse(atob(data.content));
+                    charsSha = data.sha;
+                    populateCharactersDropdown();
+                }
+            } catch (err) {
+                console.error('Error caching characters database:', err);
+            }
+        }
+
+        // --- POPULATE DROPDOWNS ---
+        function populateArticlesDropdown() {
+            const select = document.getElementById('articleSelect');
+            select.innerHTML = '<option value="new">-- Create New Article --</option>';
+            inMemoryPosts.forEach(post => {
+                const opt = document.createElement('option');
+                opt.value = post.id;
+                opt.innerText = `${post.title} (${post.category})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function populateCharactersDropdown() {
+            const select = document.getElementById('charSelect');
+            select.innerHTML = '<option value="new">-- Create New Character --</option>';
+            inMemoryCharacters.forEach(char => {
+                const opt = document.createElement('option');
+                opt.value = char.id;
+                opt.innerText = `${char.name} (${char.role})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // --- ACTION: POPULATE FORM FROM DROPDOWN SELECTION ---
+        function loadArticleToForm() {
+            const idVal = document.getElementById('articleSelect').value;
+            const btn = document.getElementById('pubBtn');
+            const delBtn = document.getElementById('deleteArtBtn');
+            
+            if (idVal === 'new') {
+                document.getElementById('postForm').reset();
+                btn.innerText = 'Commit & Publish News';
+                delBtn.style.display = 'none';
+                document.getElementById('artUploadStatus').innerText = 'No file uploaded';
+                document.getElementById('artUploadStatus').style.color = 'var(--text-muted)';
+            } else {
+                const post = inMemoryPosts.find(p => p.id == idVal);
+                if (post) {
+                    document.getElementById('title').value = post.title;
+                    document.getElementById('category').value = post.category;
+                    document.getElementById('image_url').value = post.image;
+                    document.getElementById('content').value = post.content;
+                    
+                    btn.innerText = 'Update & Save Article';
+                    delBtn.style.display = 'block';
+                    document.getElementById('artUploadStatus').innerText = 'Existing Image Pre-loaded';
+                    document.getElementById('artUploadStatus').style.color = '#00ff88';
+                }
+            }
+        }
+
+        function loadCharacterToForm() {
+            const idVal = document.getElementById('charSelect').value;
+            const btn = document.getElementById('charPubBtn');
+            const delBtn = document.getElementById('deleteCharBtn');
+            
+            if (idVal === 'new') {
+                document.getElementById('charForm').reset();
+                btn.innerText = 'Commit & Add Character';
+                delBtn.style.display = 'none';
+                document.getElementById('charUploadStatus').innerText = 'No file uploaded';
+                document.getElementById('charUploadStatus').style.color = 'var(--text-muted)';
+            } else {
+                const char = inMemoryCharacters.find(c => c.id == idVal);
+                if (char) {
+                    document.getElementById('charName').value = char.name;
+                    document.getElementById('charRole').value = char.role;
+                    document.getElementById('charImage').value = char.image;
+                    document.getElementById('charDesc').value = char.description;
+                    
+                    btn.innerText = 'Update & Save Character';
+                    delBtn.style.display = 'block';
+                    document.getElementById('charUploadStatus').innerText = 'Existing Portrait Pre-loaded';
+                    document.getElementById('charUploadStatus').style.color = '#00ff88';
+                }
+            }
         }
 
         // --- AUTOMATED GITHUB IMAGE UPLOADER ---
@@ -263,48 +409,59 @@
             };
         }
 
-        // --- SUBMIT 1: PUBLISH ARTICLE ---
+        // --- SUBMIT 1: PUBLISH / UPDATE ARTICLE ---
         document.getElementById('postForm').onsubmit = async (e) => {
             e.preventDefault();
             const token = localStorage.getItem('gh_token');
             const btn = document.getElementById('pubBtn');
+            const selectVal = document.getElementById('articleSelect').value;
+            
             btn.innerText = 'Pushing Article Live...';
             btn.disabled = true;
 
             try {
-                // Fetch posts database
-                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${POSTS_FILE}`, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                const fileData = await res.json();
-                const posts = JSON.parse(atob(fileData.content));
-
-                const newPost = {
-                    id: Date.now(),
-                    title: document.getElementById('title').value,
-                    category: document.getElementById('category').value,
-                    image: document.getElementById('image_url').value,
-                    content: document.getElementById('content').value,
-                    date: new Date().toLocaleDateString()
-                };
-                posts.unshift(newPost);
+                if (selectVal === 'new') {
+                    // Create New Post
+                    const newPost = {
+                        id: Date.now(),
+                        title: document.getElementById('title').value,
+                        category: document.getElementById('category').value,
+                        image: document.getElementById('image_url').value,
+                        content: document.getElementById('content').value,
+                        date: new Date().toLocaleDateString()
+                    };
+                    inMemoryPosts.unshift(newPost);
+                } else {
+                    // Edit Existing Post
+                    const postIndex = inMemoryPosts.findIndex(p => p.id == selectVal);
+                    if (postIndex !== -1) {
+                        inMemoryPosts[postIndex].title = document.getElementById('title').value;
+                        inMemoryPosts[postIndex].category = document.getElementById('category').value;
+                        inMemoryPosts[postIndex].image = document.getElementById('image_url').value;
+                        inMemoryPosts[postIndex].content = document.getElementById('content').value;
+                    }
+                }
 
                 // Commit back to GitHub
                 const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${POSTS_FILE}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: `CMS Publish Article: ${newPost.title}`,
-                        content: btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2)))),
-                        sha: fileData.sha
+                        message: `CMS Update Articles List`,
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(inMemoryPosts, null, 2)))),
+                        sha: postsSha
                     })
                 });
 
                 if (updateRes.ok) {
-                    alert('SUCCESS! The news article is live and Vercel is redeploying.');
+                    const data = await updateRes.json();
+                    postsSha = data.content.sha; // Update cached SHA
+                    alert('SUCCESS! Articles database has been updated and pushed live.');
+                    
                     document.getElementById('postForm').reset();
-                    document.getElementById('artUploadStatus').innerText = 'No file uploaded';
-                    document.getElementById('artUploadStatus').style.color = 'var(--text-muted)';
+                    document.getElementById('articleSelect').value = 'new';
+                    loadArticleToForm();
+                    populateArticlesDropdown();
                 } else {
                     const err = await updateRes.json();
                     alert('Failed to update: ' + err.message);
@@ -312,60 +469,61 @@
             } catch (err) {
                 alert('Connection Error: ' + err.message);
             }
-            btn.innerText = 'Commit & Publish News';
             btn.disabled = false;
         };
 
-        // --- SUBMIT 2: ADD CHARACTER ---
+        // --- SUBMIT 2: ADD / UPDATE CHARACTER ---
         document.getElementById('charForm').onsubmit = async (e) => {
             e.preventDefault();
             const token = localStorage.getItem('gh_token');
             const btn = document.getElementById('charPubBtn');
-            btn.innerText = 'Adding Character...';
+            const selectVal = document.getElementById('charSelect').value;
+            
+            btn.innerText = 'Pushing Character Live...';
             btn.disabled = true;
 
             try {
-                // Fetch characters database
-                const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${CHARS_FILE}`, {
-                    headers: { 'Authorization': `token ${token}` }
-                });
-                
-                let characters = [];
-                let sha = null;
-
-                if (res.ok) {
-                    const fileData = await res.json();
-                    characters = JSON.parse(atob(fileData.content));
-                    sha = fileData.sha;
+                if (selectVal === 'new') {
+                    // Create New Character
+                    const newChar = {
+                        id: Date.now(),
+                        name: document.getElementById('charName').value,
+                        role: document.getElementById('charRole').value,
+                        image: document.getElementById('charImage').value,
+                        description: document.getElementById('charDesc').value
+                    };
+                    inMemoryCharacters.unshift(newChar);
+                } else {
+                    // Edit Existing Character
+                    const charIndex = inMemoryCharacters.findIndex(c => c.id == selectVal);
+                    if (charIndex !== -1) {
+                        inMemoryCharacters[charIndex].name = document.getElementById('charName').value;
+                        inMemoryCharacters[charIndex].role = document.getElementById('charRole').value;
+                        inMemoryCharacters[charIndex].image = document.getElementById('charImage').value;
+                        inMemoryCharacters[charIndex].description = document.getElementById('charDesc').value;
+                    }
                 }
 
-                const newChar = {
-                    id: Date.now(),
-                    name: document.getElementById('charName').value,
-                    role: document.getElementById('charRole').value,
-                    image: document.getElementById('charImage').value,
-                    description: document.getElementById('charDesc').value
-                };
-                characters.unshift(newChar);
-
                 // Commit back to GitHub
-                const bodyPayload = {
-                    message: `CMS Add Character: ${newChar.name}`,
-                    content: btoa(unescape(encodeURIComponent(JSON.stringify(characters, null, 2))))
-                };
-                if (sha) bodyPayload.sha = sha;
-
                 const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${CHARS_FILE}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(bodyPayload)
+                    body: JSON.stringify({
+                        message: `CMS Update Characters List`,
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(inMemoryCharacters, null, 2)))),
+                        sha: charsSha
+                    })
                 });
 
                 if (updateRes.ok) {
-                    alert('SUCCESS! The new character has been added, Vercel is redeploying.');
+                    const data = await updateRes.json();
+                    charsSha = data.content.sha; // Update cached SHA
+                    alert('SUCCESS! Characters database has been updated and pushed live.');
+                    
                     document.getElementById('charForm').reset();
-                    document.getElementById('charUploadStatus').innerText = 'No file uploaded';
-                    document.getElementById('charUploadStatus').style.color = 'var(--text-muted)';
+                    document.getElementById('charSelect').value = 'new';
+                    loadCharacterToForm();
+                    populateCharactersDropdown();
                 } else {
                     const err = await updateRes.json();
                     alert('Failed to update character list: ' + err.message);
@@ -373,9 +531,102 @@
             } catch (err) {
                 alert('Connection Error: ' + err.message);
             }
-            btn.innerText = 'Commit & Add Character';
             btn.disabled = false;
         };
+
+        // --- DELETE ARTICLE ACTION ---
+        async function deleteArticle() {
+            const selectVal = document.getElementById('articleSelect').value;
+            if (selectVal === 'new') return;
+            
+            if (!confirm("CAUTION! Are you absolutely sure you want to delete this article? This cannot be undone.")) return;
+            
+            const token = localStorage.getItem('gh_token');
+            const delBtn = document.getElementById('deleteArtBtn');
+            delBtn.innerText = 'Deleting...';
+            delBtn.disabled = true;
+
+            try {
+                // Remove from local memory
+                inMemoryPosts = inMemoryPosts.filter(p => p.id != selectVal);
+
+                // Push updated list to GitHub
+                const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${POSTS_FILE}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: `CMS Deleted Article ID ${selectVal}`,
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(inMemoryPosts, null, 2)))),
+                        sha: postsSha
+                    })
+                });
+
+                if (updateRes.ok) {
+                    const data = await updateRes.json();
+                    postsSha = data.content.sha; // Update cached SHA
+                    alert('SUCCESS! Article has been deleted and news list updated.');
+                    
+                    document.getElementById('postForm').reset();
+                    document.getElementById('articleSelect').value = 'new';
+                    loadArticleToForm();
+                    populateArticlesDropdown();
+                } else {
+                    const err = await updateRes.json();
+                    alert('Delete failed: ' + err.message);
+                }
+            } catch (err) {
+                alert('Connection Error: ' + err.message);
+            }
+            delBtn.innerText = 'Delete Article';
+            delBtn.disabled = false;
+        }
+
+        // --- DELETE CHARACTER ACTION ---
+        async function deleteCharacter() {
+            const selectVal = document.getElementById('charSelect').value;
+            if (selectVal === 'new') return;
+            
+            if (!confirm("CAUTION! Are you absolutely sure you want to delete this character? This cannot be undone.")) return;
+            
+            const token = localStorage.getItem('gh_token');
+            const delBtn = document.getElementById('deleteCharBtn');
+            delBtn.innerText = 'Deleting...';
+            delBtn.disabled = true;
+
+            try {
+                // Remove from local memory
+                inMemoryCharacters = inMemoryCharacters.filter(c => c.id != selectVal);
+
+                // Push updated list to GitHub
+                const updateRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${CHARS_FILE}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: `CMS Deleted Character ID ${selectVal}`,
+                        content: btoa(unescape(encodeURIComponent(JSON.stringify(inMemoryCharacters, null, 2)))),
+                        sha: charsSha
+                    })
+                });
+
+                if (updateRes.ok) {
+                    const data = await updateRes.json();
+                    charsSha = data.content.sha; // Update cached SHA
+                    alert('SUCCESS! Character has been deleted and character roster updated.');
+                    
+                    document.getElementById('charForm').reset();
+                    document.getElementById('charSelect').value = 'new';
+                    loadCharacterToForm();
+                    populateCharactersDropdown();
+                } else {
+                    const err = await updateRes.json();
+                    alert('Delete failed: ' + err.message);
+                }
+            } catch (err) {
+                alert('Connection Error: ' + err.message);
+            }
+            delBtn.innerText = 'Delete Character';
+            delBtn.disabled = false;
+        }
     </script>
 </body>
 </html>
